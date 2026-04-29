@@ -16,6 +16,9 @@ public class PriceOverview
 
 public class GameData
 {
+    [JsonPropertyName("name")]
+    public string? Name {get;set;}
+
     [JsonPropertyName("price_overview")]
     public PriceOverview? Price {get;set;}
 
