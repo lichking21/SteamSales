@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Domain;
 
-public class SteamAppModel
+public class AppModel
 {
     [JsonPropertyName("appid")]
     public long ID {get;set;}
@@ -11,14 +11,14 @@ public class SteamAppModel
     public string? Name {get;set;}
 }
 
-public class SteamAppList
+public class AppList
 {
     [JsonPropertyName("apps")]
-    public List<SteamAppModel> Apps {get;set;} = new();
+    public List<AppModel> Apps {get;set;} = new();
 }
 
-public class SteamAppsResponse
+public class Response
 {
     [JsonPropertyName("response")]
-    public SteamAppsList AppsLists {get;set;} = new();
+    public AppList AppList {get;set;} = new();
 }
