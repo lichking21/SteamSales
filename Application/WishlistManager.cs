@@ -16,6 +16,7 @@ public class WishlistManager
 
         var bestPrices = res
             .OrderByDescending(game => game.discount)
+            .OrderBy(game => game.finalPrice)
             .ToList();
 
         return bestPrices;
