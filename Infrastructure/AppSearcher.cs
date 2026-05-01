@@ -50,8 +50,18 @@ public class AppSearcher
             return 0;
         }
 
-        if (_dictionary.TryGetValue(name.Trim(), out long id)) return id;
+        string searchItem = name.Trim();
+        
+        if (_dictionary.TryGetValue(searchItem, out long id)) return id;
+
+        var partialMatch = _dictionary.FirstOrDefault(
+            k => RemoveTradeMarks(k.Key).Contains(searchItem, StringComparison.OrdinalIgnoreCase)
+        );
+
+        if (partialMatch.Value != 0) return partialMatch.Value;
 
         return 0;
     }
+
+    private string RemoveTradeMarks(string input) => input.Replace("™", "").Replace("®", "").Replace("©", "");
 }
