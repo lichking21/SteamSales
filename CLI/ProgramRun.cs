@@ -15,28 +15,30 @@ public static class ProgramRun
         "GamesLists/List5.json",
     };
     
+    private static PriceManager? _priceManager;
+    private static WishlistManager? _wishlistManager;
+    private static AppSearcher? _appSearcher;
+
     public static async Task Execute()
     {
         using var loggerFactory = LoggerFactory.Create(builder => { builder.AddConsole(); });
         ILogger<PriceManager> pmlog = loggerFactory.CreateLogger<PriceManager>();
         ILogger<AppSearcher> aslog = loggerFactory.CreateLogger<AppSearcher>();
-
-        PriceManager priceManager = new PriceManager(pmlog);
-        WishlistManager wishlistManager = new WishlistManager(priceManager);
-        AppSearcher appSearcher = new AppSearcher(aslog, _listsPath);
-        await appSearcher.FillSteamDictionary();
+        
+        _priceManager = new PriceManager(pmlog);
+        _wishlistManager = new WishlistManager(_priceManager);
+        _appSearcher = new AppSearcher(aslog, _listsPath);
+        
+        Console.WriteLine("Loading Steam database...");
+        await _appSearcher.FillSteamDictionary();
 
         List<long> gameIds = new List<long>();
         string region = SetRegion();
 
-        bool isAdding = UI(gameIds, appSearcher);
+        bool isAdding = await UI(gameIds, region);
         if (!isAdding) return;
 
-        var topPrices = await wishlistManager.GetTopPricesAsync(gameIds, region);
-        
-        Console.WriteLine("\nYour wishlist:");
-        foreach(var price in topPrices)
-            Console.WriteLine($"{price.name}: price - {price.finalPrice}; discount - {price.discount}%");
+        await ShowWishlist(region, gameIds);
     }
 
     private static string SetRegion()
@@ -50,7 +52,18 @@ public static class ProgramRun
         }
     }
 
-    private static bool UI(List<long> gameIds, AppSearcher appSearcher)
+    private static async Task ShowWishlist(string region, List<long> gameIds)
+    {
+        if (_wishlistManager == null) return;
+
+        var topPrices = await _wishlistManager.GetTopPricesAsync(gameIds, region);
+        
+        Console.WriteLine("\n=== Your wishlist ===");
+        foreach(var price in topPrices)
+            Console.WriteLine($"{price.name}: price - {price.finalPrice}; discount - {price.discount}%");
+    }
+
+    private static async Task<bool> UI(List<long> gameIds, string region)
     {
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Green;
@@ -63,6 +76,7 @@ public static class ProgramRun
 
         Console.WriteLine("  [q]/[quit]  - to close the program");
         Console.WriteLine("  [e]/[enter] - to end adding games");
+        Console.WriteLine("  [e]/[enter] - to show your wishlist");
         Console.WriteLine("***for better optimization please type exact game name***");
         Console.WriteLine("-------------------------------------------");
 
@@ -85,20 +99,40 @@ public static class ProgramRun
                 }
                 return true;
             }
-
-            long id = appSearcher.GetId(input);
-            if (!gameIds.Contains(id))
+            if (command == "l" || command == "list")
             {
-                gameIds.Add(id);
+                if (gameIds.Count == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("[-] You didn't add any game! Press [q]/[quit] or add game");
+                    Console.ResetColor();
+                    continue;
+                }
+                
+                await ShowWishlist(region, gameIds);
+                continue;   
+            }
+            long? id = _appSearcher?.GetId(input);
+            if (id == null || id == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[-] Game '{input}' not found. Try exact title.");
+                Console.ResetColor();
+                continue;
+            }
+
+            if (!gameIds.Contains(id.Value))
+            {
+                gameIds.Add(id.Value);
                 
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine($"[+] Game {id} was added");
+                Console.WriteLine($"[+] Game {input} was added");
                 Console.ResetColor();
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"[-] Game {id} is already in wishlist");
+                Console.WriteLine($"[-] Game {input} is already in wishlist");
                 Console.ResetColor();
             }
         }
