@@ -16,6 +16,8 @@ public class AppSearcher
         _listsPath = listsPath;
     }
 
+    // Uses Streams to transfer data from JSONs into Dictionary with ignoring duplicates
+    // Data in Dictionary is stored with case ignoring to provide fast search
     public async Task FillSteamDictionary()
     {
         foreach(var path in _listsPath)
@@ -63,5 +65,6 @@ public class AppSearcher
         return 0;
     }
 
+    // Help function to remove trademarks in game's title
     private string RemoveTradeMarks(string input) => input.Replace("™", "").Replace("®", "").Replace("©", "");
 }

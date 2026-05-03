@@ -14,7 +14,8 @@ public class PriceManager : IPriceManager
         _logger = logger;
     }
 
-    public async Task<(string? name, string finalPrice, int discount)> GetSteamPriceAsync(int gameId, string userRegion)
+    // Try-catch is used to handle Network and Deserialization errors 
+    public async Task<(string? name, string finalPrice, int discount)> GetSteamPriceAsync(long gameId, string userRegion)
     {
         string url = $"https://store.steampowered.com/api/appdetails?appids={gameId}&cc={userRegion}&l=english";
 
@@ -40,8 +41,6 @@ public class PriceManager : IPriceManager
                         
                         if (price.DiscountPercent != 0)
                         {
-                            _logger.LogInformation($"(LOG) >> Discount is: {price.DiscountPercent}%");
-                            _logger.LogInformation($"(LOG) >> Initial price is: {price.InitialPrice}");
                             return (
                                 gameDetails.Data.Name, 
                                 price.FinalPrice, 
