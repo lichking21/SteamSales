@@ -24,7 +24,8 @@ A high-performance, asynchronous Command Line Interface (CLI) application built 
     cd steam-deals-cli
     ```
 2.  **Provide the Data Dumps:**
-    Download the official Steam AppList JSONs and place them in the root directory under `/GamesLists/` (name them `List1.json` through `List5.json`).
+    Download the official Steam AppList JSONs and place them in the CLI directory with folder name `/GamesLists/` (name them `List1.json` through `List5.json`).
+    They can be found at the main branch in CLI folder (it was made to avoid using of neccessary Steam API key)
 3.  **Run the application:**
     ```bash
     dotnet run
