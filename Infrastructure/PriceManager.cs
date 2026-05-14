@@ -2,7 +2,7 @@
 using Application;
 using Domain;
 using Microsoft.Extensions.Logging;
-using Infrastructure.Exeptions;
+using Infrastructure.Exceptions;
 namespace Infrastructure;
 
 public class PriceManager : IPriceManager
@@ -60,12 +60,12 @@ public class PriceManager : IPriceManager
         catch(HttpRequestException ex)
         {
             _logger.LogError($"{ex} (ERR) >> Network fail while fetching [{gameId}]");
-            throw new SteamApiExeption($"Failed to fetch [{gameId}]");
+            throw new SteamApiException($"Failed to fetch [{gameId}]");
         }
         catch(JsonException ex)
         {
             _logger.LogError($"{ex} (ERR) >> Deserialization failed for [{gameId}]");
-            throw new SteamApiExeption($"Invalid JSON from SteamAPI for [{gameId}]");
+            throw new SteamApiException($"Invalid JSON from SteamAPI for [{gameId}]");
         }
 
         return ("N/A", "N/A", 0);

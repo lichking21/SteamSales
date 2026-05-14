@@ -2,7 +2,7 @@ using Domain;
 using Microsoft.Extensions.Logging;
 using Application;
 using Infrastructure;
-using Infrastructure.Exeptions;
+using Infrastructure.Exceptions;
 using System.Collections;
 
 public static class ProgramRun
@@ -48,8 +48,14 @@ public static class ProgramRun
         {
             Console.WriteLine("[>] Enter your region: ");
             string? region = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(region)) continue;
-            else return region;
+            if (!string.IsNullOrWhiteSpace(region) && region?.Trim().Length == 2 && region.All(char.IsLetter))
+            {
+                return region.ToLower().Trim();
+            }
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("[-] Invalid region code. Please use a 2-letter ISO code.");
+            Console.ResetColor();
         }
     }
 
@@ -65,7 +71,7 @@ public static class ProgramRun
             foreach(var price in topPrices)
                 Console.WriteLine($"{price.name}: price - {price.finalPrice}; discount - {price.discount}%");    
         }
-        catch(SteamApiExeption ex)
+        catch(SteamApiException ex)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine($"\n(ERR) >> SteamAPI is currently unavailable or returned bad data: {ex.Message}");
