@@ -4,7 +4,7 @@
 
 * **Separation of Concerns:** The application is logically divided into the **Domain layer** (data models, DTOs), the **Application layer** (business logic — `WishlistManager`, interfaces), and the **Infrastructure layer** (HTTP communication, file handling). This strictly follows to the Single Responsibility Principle (SOLID).
 
-* **Asynchronous Processing:** Network I/O operations (`HttpClient` in `PriceManager`) use `async/await` to avoid blocking the thread. Processing of multiple games occurs in parallel using `Task.WhenAll`, which drastically reduces latency when querying the Steam API.
+* **Asynchronous Processing:** Network I/O operations (`HttpClient` in `PriceManager`) use `async/await` to avoid blocking the thread. Processing of multiple games occurs in parallel using `Task.WhenAll`, which reduces latency when querying the Steam API.
 
 * **Synchronous UI:** Reading user input via `Console.ReadLine()` remains synchronous, as this is a blocking I/O operation specific to console applications, where an asynchronous wrapper would offer no performance benefit.
 
