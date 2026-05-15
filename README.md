@@ -1,16 +1,18 @@
 # Steam Deals Aggregator CLI
 
-A high-performance, asynchronous Command Line Interface (CLI) application built with .NET for tracking Steam game prices and discounts. Developed as part of a university project demonstrating Clean Architecture, SOLID principles, and advanced asynchronous I/O operations.
+## Architecture & Design Rationale
 
-## 🚀 Key Features
+* **Separation of Concerns:** The application is logically divided into the **Domain layer** (data models, DTOs), the **Application layer** (business logic — `WishlistManager`, interfaces), and the **Infrastructure layer** (HTTP communication, file handling). This strictly follows to the Single Responsibility Principle (SOLID).
 
-* **Concurrent HTTP Fetching:** Utilizes `Task.WhenAll` for parallel asynchronous calls to the Steam API, drastically reducing I/O bottlenecks when processing large wishlists.
-* **Optimized In-Memory Searching:** Parses up to 250k+ local JSON records into a `Dictionary<string, long>`, enabling $O(1)$ lookup complexity for game titles.
-* **Fuzzy Matching & Normalization:** Automatically strips trademarks (™, ®, ©) from inputs and database keys to ensure robust, case-insensitive partial matching.
-* **Robust Fault Tolerance:** Implements custom exceptions (`SteamApiException`) and global try-catch blocks to gracefully handle network timeouts and JSON deserialization failures without crashing the runtime.
-* **Clean Architecture:** Strict separation of concerns across `Domain`, `Application`, and `Infrastructure` layers, leveraging Dependency Injection (DI) for loose coupling.
+* **Asynchronous Processing:** Network I/O operations (`HttpClient` in `PriceManager`) use `async/await` to avoid blocking the thread. Processing of multiple games occurs in parallel using `Task.WhenAll`, which drastically reduces latency when querying the Steam API.
 
-## 🏗️ Architecture Stack
+* **Synchronous UI:** Reading user input via `Console.ReadLine()` remains synchronous, as this is a blocking I/O operation specific to console applications, where an asynchronous wrapper would offer no performance benefit.
+
+* **Exceptions and Error States:** * Critical errors (e.g., missing JSON files) implement a "fail-fast" approach using exceptions. 
+  * Communication with the API catches `HttpRequestException` and `JsonException`, which are transformed into the domain-specific `SteamApiException` and propagated to the UI layer for display to the user. 
+  * User inputs (e.g., Region) are validated immediately upon entry.
+
+## Stack
 
 * **Platform:** .NET 10
 * **Libraries:** `Microsoft.Extensions.Logging`, `System.Text.Json`
