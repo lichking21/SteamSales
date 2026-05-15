@@ -24,8 +24,9 @@ public class AppSearcher
         {
             if (!File.Exists(path))
             {
-                _logger.LogError($"(ERR) >> file wasn't found: {path}");
-                continue;
+                string msg = $"Database file missing: {path}";
+                _logger.LogCritical(msg);
+                throw new FileNotFoundException(msg);
             }
 
             using var stream = File.OpenRead(path);

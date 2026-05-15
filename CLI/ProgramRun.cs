@@ -31,7 +31,24 @@ public static class ProgramRun
         _appSearcher = new AppSearcher(aslog, _listsPath);
         
         Console.WriteLine("Loading Steam database...");
-        await _appSearcher.FillSteamDictionary();
+        try
+        {
+            await _appSearcher.FillSteamDictionary();
+        }
+        catch (FileNotFoundException ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"\n(FATAL) >> Stopping program: {ex.Message}");
+            Console.ResetColor();
+            return;
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"\n(FATAL) >> Unexpected database loading error: {ex.Message}");
+            Console.ResetColor();
+            return;
+        }
 
         List<long> gameIds = new List<long>();
         string region = SetRegion();
@@ -98,7 +115,7 @@ public static class ProgramRun
 
         Console.WriteLine("  [q]/[quit]  - to close the program");
         Console.WriteLine("  [e]/[enter] - to end adding games");
-        Console.WriteLine("  [e]/[enter] - to show your wishlist");
+        Console.WriteLine("  [l]/[list] - to show your wishlist");
         Console.WriteLine("***for better optimization please type exact game name***");
         Console.WriteLine("-------------------------------------------");
 
